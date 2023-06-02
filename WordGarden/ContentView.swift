@@ -13,6 +13,7 @@ struct ContentView: View {
     
     @State private var guessedLetter: String = ""
     @State private var isBtnDisabled: Bool = true
+    @State private var playAgainHidden: Bool = true
     
     func guessLetter() {
         // TODO: Logic on guess
@@ -50,24 +51,31 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 30)
             
-            HStack {
-                
-                TextField("", text: $guessedLetter)
-                    .frame(width: 30, height: 30)
-                    .border(.tertiary)
-                    .shadow(radius: 0.9)
-                    .textInputAutocapitalization(.characters)
-
-                Button("Guess a Letter") {
-                    guessLetter() // TODO: Check how to inline this
+            
+            if (playAgainHidden) {
+                HStack {
+                    
+                    TextField("", text: $guessedLetter)
+                        .frame(width: 30, height: 30)
+                        .border(.tertiary)
+                        .shadow(radius: 0.9)
+                        .textInputAutocapitalization(.characters)
+                    
+                    Button("Guess a Letter") {
+                        guessLetter() // TODO: Check how to inline this
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isBtnDisabled)
+                }
+            } else {
+                Button("Another word?") {
+                    // TODO: Add another word button action here
+                    playAgainHidden = true
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(isBtnDisabled)
             }
             
             Spacer()
-            
-
             
         }.ignoresSafeArea(edges: .bottom)
     }
