@@ -1,21 +1,75 @@
-//
-//  ContentView.swift
-//  WordGarden
-//
-//  Created by Dani Benet on 1/6/23.
-//
-
 import SwiftUI
 
+var words = ["Dog", "Cat", "Horse"]
+
 struct ContentView: View {
+    
+    @State private var wordsGuessed: Int = 0
+    @State private var wordsMissed: Int = 0
+    @State private var wordsToGuess: [String] = ["SWIFT", "CAT", "DOG"]
+    @State private var gameStatus: Int = 0
+    
+    @State private var currentWord: String = ""
+    
+    @State private var guessedLetter: String = ""
+    @State private var isBtnDisabled: Bool = true
+    
+    func guessLetter() {
+        // TODO: Logic on guess
+    }
+    
+    func endGame() {
+        // TODO: Remove the word from the array
+    }
+    
     var body: some View {
+
+        
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
+            
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Words Guessed: \(wordsGuessed)")
+                    Text("Words Missed: \(wordsMissed)")
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing) {
+                    Text("Words to Guess: \(wordsToGuess.count - (wordsGuessed + wordsMissed))")
+                    Text("Words in Game: \(wordsToGuess.count)")
+                }
+            }
+            .font(.system(size: 12))
+            .padding()
+            
+            
+            
+            Text("How Many Guesses to Uncover the Hidden Word?")
+                .font(.title)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 30)
+            
+            HStack {
+                
+                TextField("", text: $guessedLetter)
+                    .frame(width: 30, height: 30)
+                    .border(.tertiary)
+                    .shadow(radius: 0.9)
+                    .textInputAutocapitalization(.characters)
+
+                Button("Guess a Letter") {
+                    guessLetter() // TODO: Check how to inline this
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(isBtnDisabled)
+            }
+            
+            Spacer()
+            
+
+            
+        }.ignoresSafeArea(edges: .bottom)
     }
 }
 
