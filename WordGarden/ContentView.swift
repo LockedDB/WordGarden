@@ -7,17 +7,20 @@ struct ContentView: View {
     @State private var wordsGuessed: Int = 0
     @State private var wordsMissed: Int = 0
     @State private var gameStatus: Int = 0
+    @State private var gameStatusMessage = "How Many Guesses to Uncover the Hidden Word?"
     
     @State private var currentWordIndex: Int = 0
     @State private var wordToGuess: String = ""
     @State private var revealedWord: String = ""
     @State private var lettersGuessed: String = ""
-    
     @State private var guessedLetter: String = ""
+    @State private var guessesRemaining = 8
+    
     @State private var playAgainHidden: Bool = true
     @FocusState private var textFieldIsFocused: Bool
     
     private let wordsToGuess: [String] = ["SWIFT", "CAT", "DOG"]
+    private let maximumGuesses: Int = 8
     
     var body: some View {
         
@@ -39,9 +42,11 @@ struct ContentView: View {
             .font(.system(size: 12))
             .padding()
             
-            Text("How Many Guesses to Uncover the Hidden Word?")
+            Text(gameStatusMessage)
                 .font(.title)
                 .multilineTextAlignment(.center)
+                .frame(height: 80)
+                .minimumScaleFactor(0.5)
                 .padding(.horizontal, 30)
             
             Text(revealedWord)
@@ -64,6 +69,7 @@ struct ContentView: View {
                                 return
                             }
                             guessALetter()
+                            updateGameplay()
                         }
                         .autocorrectionDisabled()
                         .onChange(of: guessedLetter) { _ in
@@ -78,6 +84,7 @@ struct ContentView: View {
                     
                     Button("Guess a Letter") {
                         guessALetter()
+                        updateGameplay()
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.mint)
@@ -85,10 +92,14 @@ struct ContentView: View {
                 }
             } else {
                 Button("Another word?") {
-                    // TODO: Add another word button action here
-                    
+                    wordToGuess = wordsToGuess[currentWordIndex]
+                    revealedWord = "_" + String(repeating: " _", count: wordToGuess.count - 1)
+                    playAgainHidden = true
+                    lettersGuessed = ""
+                    guessesRemaining = maximumGuesses
                 }
                 .buttonStyle(.borderedProminent)
+                .tint(.mint)
             }
             
             
@@ -99,6 +110,7 @@ struct ContentView: View {
         .onAppear() {
             wordToGuess = wordsToGuess[currentWordIndex]
             revealedWord = "_" + String(repeating: " _", count: wordToGuess.count - 1)
+            guessesRemaining = maximumGuesses
         }
     }
     
@@ -115,6 +127,27 @@ struct ContentView: View {
             }
         }
         revealedWord.removeLast()
+        
+    }
+    
+    func updateGameplay() {
+        if !wordToGuess.contains(guessedLetter) {
+            guessesRemaining -= 1
+        }
+        
+        if !revealedWord.contains("_") {
+            gameStatusMessage = "You've Guessed It! It Took You \(lettersGuessed.count) Guesses to Guess the Word."
+            wordsGuessed += 1
+            currentWordIndex += 1
+            playAgainHidden = false
+        } else if guessesRemaining == 0 {
+            gameStatusMessage = "So Sorry. You're All Out of Guesses."
+            wordsMissed += 1
+            currentWordIndex += 1
+            playAgainHidden = false
+        } else {
+            gameStatusMessage = "You've Made \(lettersGuessed.count) Guess\(lettersGuessed.count == 1 ? "" : "es")"
+        }
         guessedLetter = ""
     }
 }
