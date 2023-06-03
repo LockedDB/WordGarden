@@ -12,8 +12,8 @@ struct ContentView: View {
     @State private var currentWord: String = ""
     
     @State private var guessedLetter: String = ""
-    @State private var isBtnDisabled: Bool = true
     @State private var playAgainHidden: Bool = true
+    @FocusState private var textFieldIsFocused: Bool
     
     func guessLetter() {
         // TODO: Logic on guess
@@ -60,17 +60,30 @@ struct ContentView: View {
                         .border(.tertiary)
                         .shadow(radius: 0.9)
                         .textInputAutocapitalization(.characters)
+                        .keyboardType(.asciiCapable)
+                        .submitLabel(.done)
+                        .autocorrectionDisabled()
+                        .onChange(of: guessedLetter) { _ in
+                            // Trim all execpt letters from the input
+                            guessedLetter = guessedLetter.trimmingCharacters(in: .letters.inverted)
+                            guard let lastChar = guessedLetter.last else {
+                                return
+                            }
+                            guessedLetter = String(lastChar).uppercased()
+                        }
+                        .focused($textFieldIsFocused)
                     
                     Button("Guess a Letter") {
-                        guessLetter() // TODO: Check how to inline this
+                        textFieldIsFocused = false
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(isBtnDisabled)
+                    .tint(.mint)
+                    .disabled(guessedLetter.isEmpty)
                 }
             } else {
                 Button("Another word?") {
                     // TODO: Add another word button action here
-                    playAgainHidden = true
+                    
                 }
                 .buttonStyle(.borderedProminent)
             }
