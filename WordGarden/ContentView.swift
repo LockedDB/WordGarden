@@ -6,25 +6,20 @@ struct ContentView: View {
     
     @State private var wordsGuessed: Int = 0
     @State private var wordsMissed: Int = 0
-    @State private var wordsToGuess: [String] = ["SWIFT", "CAT", "DOG"]
     @State private var gameStatus: Int = 0
     
-    @State private var currentWord: String = ""
+    @State private var currentWordIndex: Int = 0
+    @State private var wordToGuess: String = ""
+    @State private var revealedWord: String = ""
+    @State private var lettersGuessed: String = ""
     
     @State private var guessedLetter: String = ""
     @State private var playAgainHidden: Bool = true
     @FocusState private var textFieldIsFocused: Bool
     
-    func guessLetter() {
-        // TODO: Logic on guess
-    }
-    
-    func endGame() {
-        // TODO: Remove the word from the array
-    }
+    private let wordsToGuess: [String] = ["SWIFT", "CAT", "DOG"]
     
     var body: some View {
-
         
         VStack {
             
@@ -44,13 +39,15 @@ struct ContentView: View {
             .font(.system(size: 12))
             .padding()
             
-            
-            
             Text("How Many Guesses to Uncover the Hidden Word?")
                 .font(.title)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 30)
             
+            Text(revealedWord)
+                .font(.title)
+                .multilineTextAlignment(.center)
+                .padding()
             
             if (playAgainHidden) {
                 HStack {
@@ -62,6 +59,12 @@ struct ContentView: View {
                         .textInputAutocapitalization(.characters)
                         .keyboardType(.asciiCapable)
                         .submitLabel(.done)
+                        .onSubmit {
+                            guard guessedLetter != "" else {
+                                return
+                            }
+                            guessALetter()
+                        }
                         .autocorrectionDisabled()
                         .onChange(of: guessedLetter) { _ in
                             // Trim all execpt letters from the input
@@ -74,7 +77,7 @@ struct ContentView: View {
                         .focused($textFieldIsFocused)
                     
                     Button("Guess a Letter") {
-                        textFieldIsFocused = false
+                        guessALetter()
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.mint)
@@ -88,9 +91,31 @@ struct ContentView: View {
                 .buttonStyle(.borderedProminent)
             }
             
+            
             Spacer()
             
-        }.ignoresSafeArea(edges: .bottom)
+        }
+        .ignoresSafeArea(edges: .bottom)
+        .onAppear() {
+            wordToGuess = wordsToGuess[currentWordIndex]
+            revealedWord = "_" + String(repeating: " _", count: wordToGuess.count - 1)
+        }
+    }
+    
+    func guessALetter() {
+        textFieldIsFocused = false
+        lettersGuessed = lettersGuessed + guessedLetter
+        
+        revealedWord = ""
+        wordToGuess.forEach { letter in
+            if lettersGuessed.contains(letter) {
+                revealedWord = revealedWord + "\(letter)"
+            } else {
+                revealedWord = revealedWord + "_ "
+            }
+        }
+        revealedWord.removeLast()
+        guessedLetter = ""
     }
 }
 
